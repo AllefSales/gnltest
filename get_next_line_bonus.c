@@ -1,83 +1,122 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
+/*   By: audumont <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/12/04 18:04:00 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/01/14 19:27:00 by fgata-va         ###   ########.fr       */
+/*   Created: 2020/01/12 11:31:47 by audumont          #+#    #+#             */
+/*   Updated: 2020/01/21 00:33:02 by audumont         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-char				*ft_clean_line(char *save, char **line, int r)
+static char		*ft_strjoin(const char *s1, const char *s2)
 {
-	unsigned int	i;
-	char			*tmp;
+	char		*dest;
+	char		*tmp;
 
-	i = 0;
-	while (save[i])
-	{
-		if (save[i] == '\n')
-			break ;
-		i++;
-	}
-	if (i < ft_strlen(save))
-	{
-		*line = ft_substr(save, 0, i);
-		tmp = ft_substr(save, i + 1, ft_strlen(save));
-		free(save);
-		save = ft_strdup(tmp);
-		free(tmp);
-	}
-	else if (r == 0)
-	{
-		*line = save;
-		save = NULL;
-	}
-	return (save);
+	if (!s1 || !s2 || !(tmp = (char*)malloc(sizeof(char) * (ft_strlen(s1)\
+	+ ft_strlen(s2) + 1))))
+		return (NULL);
+	dest = tmp;
+	while (*s1 != '\0')
+		*dest++ = *s1++;
+	while (*s2 != '\0')
+		*dest++ = *s2++;
+	*dest = '\0';
+	return (tmp);
 }
 
-char				*ft_save(char *buffer, char *save)
+static char		*ft_strdup(const char *str)
 {
-	char			*tmp;
+	char		*tmp;
+	size_t		index;
 
-	if (save)
-	{
-		tmp = ft_strjoin(save, buffer);
-		free(save);
-		save = ft_strdup(tmp);
-		free(tmp);
-	}
-	else
-		save = ft_strdup(buffer);
-	return (save);
+	index = 0;
+	while (str[index])
+		index++;
+	if (!(tmp = (char*)malloc(sizeof(char) * (index + 1))))
+		return (NULL);
+	index = -1;
+	while (str[++index])
+		tmp[index] = str[index];
+	tmp[index] = '\0';
+	return (tmp);
 }
 
-int					get_next_line(int fd, char **line)
+static int		ft_check_line(char **stock, char **line)
 {
-	static char		*save[4096];
-	char			buffer[BUFFER_SIZE + 1];
-	int				r;
+	char		*tmp;
+	char		*str;
+	int			index;
 
-	while ((r = read(fd, buffer, BUFFER_SIZE)))
+	index = 0;
+	str = *stock;
+	while (str[index] != '\n')
 	{
-		if (r == -1)
-			return (-1);
-		buffer[r] = '\0';
-		save[fd] = ft_save(buffer, save[fd]);
-		if (ft_strchr(buffer, '\n'))
-			break ;
+		if (!str[index])
+			return (0);
+		index++;
 	}
-	if (r <= 0 && !save[fd])
-	{
-		*line = ft_strdup("");
-		return (r);
-	}
-	save[fd] = ft_clean_line(save[fd], line, r);
-	if (r <= 0 && !save[fd])
-		return (r);
+	tmp = &str[index];
+	*tmp = '\0';
+	*line = ft_strdup(*stock);
+	free(*stock);
+	*stock = ft_strdup(tmp + 1);
 	return (1);
+}
+
+static int		ft_read_file(int fd, char *str, char **stock, char **line)
+{
+	int			result;
+	char		*tmp;
+
+	result = 0;
+	while ((result = read(fd, str, BUFFER_SIZE)) > 0)
+	{
+		str[result] = '\0';
+		if (*stock)
+		{
+			tmp = *stock;
+			*stock = ft_strjoin(tmp, str);
+			free(tmp);
+			tmp = NULL;
+		}
+		else
+			*stock = ft_strdup(str);
+		if (ft_check_line(stock, line))
+			break ;
+	}
+	return ((result > 0 ? 1 : result));
+}
+
+int				get_next_line(int fd, char **line)
+{
+	static char *stock[BUFFER_SIZE < 0 ? -BUFFER_SIZE + 1 : BUFFER_SIZE + 1];
+	char		*tmp;
+	int			index;
+	int			ret;
+
+	if ((fd < 0 || fd >= OPEN_MAX) || BUFFER_SIZE <= 0 || !line || (!(tmp = \
+	malloc(sizeof(char) * BUFFER_SIZE + 1))) || (read(fd, stock[fd], 0) < 0))
+		return (GNL_ERROR);
+	if (stock[fd])
+		if (ft_check_line(&stock[fd], line))
+			return (ft_free(tmp));
+	index = 0;
+	while (index < BUFFER_SIZE)
+		tmp[index++] = '\0';
+	ret = ft_read_file(fd, tmp, &stock[fd], line);
+	free(tmp);
+	if (ret != 0 || stock[fd] == NULL || stock[fd][0] == '\0')
+	{
+		if (!ret)
+			*line = ft_strdup("");
+		return (ret);
+	}
+	*line = stock[fd];
+	stock[fd] = NULL;
+	return (ret);
 }

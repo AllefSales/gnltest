@@ -1,29 +1,44 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_bonus.h                              :+:      :+:    :+:   */
+/*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
+/*   By: audumont <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/12/05 14:28:51 by fgata-va          #+#    #+#             */
-/*   Updated: 2020/01/14 19:14:01 by fgata-va         ###   ########.fr       */
+/*   Created: 2020/01/12 11:41:25 by audumont          #+#    #+#             */
+/*   Updated: 2020/01/21 00:32:44 by audumont         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_BONUS_H
 # define GET_NEXT_LINE_BONUS_H
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 32
-# endif
+
 # include <stdlib.h>
-# include <string.h>
+# include <limits.h>
 # include <unistd.h>
 
-int			get_next_line(int fd, char **line);
-size_t		ft_strlen(const char *s);
-char		*ft_substr(char const *s, unsigned int start, size_t len);
-char		*ft_strjoin(char const *s1, char const *s2);
-char		*ft_strdup(const char *s1);
-char		*ft_strchr(const char *s, int c);
+# ifndef OPEN_MAX
+#  define OPEN_MAX _POSIX_OPEN_MAX
+# endif
+
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 1024
+# endif
+
+# ifndef GNL_ERROR
+#  define GNL_ERROR -1
+# endif
+
+# ifndef GNL_SUCCESS
+#  define GNL_SUCCESS 1
+# endif
+
+# ifndef GNL_END
+#  define GNL_END 0
+# endif
+
+int						get_next_line(int fd, char **line);
+size_t					ft_strlen(const char *str);
+int						ft_free(char *str);
 
 #endif
