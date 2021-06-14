@@ -3,33 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: epuclla <epuclla@student.42.us.org>        +#+  +:+       +#+        */
+/*   By: fgata-va <fgata-va@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/05/24 23:14:22 by epuclla           #+#    #+#             */
-/*   Updated: 2020/06/18 00:32:54 by epuclla          ###   ########.fr       */
+/*   Created: 2019/12/05 14:28:51 by fgata-va          #+#    #+#             */
+/*   Updated: 2020/01/13 18:48:19 by fgata-va         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
-
-# include <unistd.h>
-# include <stdlib.h>
-# include <stdio.h>
-
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 4000
+#  define BUFFER_SIZE 32
 # endif
+# include <stdlib.h>
+# include <string.h>
+# include <unistd.h>
 
-char	*ft_strchr(const char *s, int c);
-char	*ft_strjoin(char const *s1, char const *s2);
-char	*ft_substr(char const *s, unsigned int start, size_t len);
-char	*ft_strdup(const char *s1);
-size_t	ft_strlen(const char *str);
-char	*ft_strnew(size_t size);
-void	*ft_memalloc(size_t size);
-void	*ft_memset(void *b, int c, size_t len);
-int		ft_memdel(void **ptr);
-int		get_next_line(int fd, char **line);
+int			get_next_line(int fd, char **line);
+size_t		ft_strlen(const char *s);
+char		*ft_substr(char const *s, unsigned int start, size_t len);
+char		*ft_strjoin(char const *s1, char const *s2);
+char		*ft_strdup(const char *s1);
+char        *ft_strchr(const char *s, int c);
 
 #endif
